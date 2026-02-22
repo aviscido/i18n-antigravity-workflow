@@ -5,8 +5,12 @@ import subprocess
 import argparse
 
 def extract_keys_from_source(src_dir):
-    """Uses grep to extract t('key') and t("key") occurrences from TS/TSX files."""
-    cmd = f'grep -rI -oP "(?<=\\Wt\\([\'\\"\\`])[a-zA-Z0-9_.-]+(?=[\'\\"\\`])" {src_dir} | cut -d: -f2 | sort | uniq'
+    """Uses grep to extract t('key'), t("key"), i18nKey="key" occurrences from TS/TSX files."""
+    cmd1 = f'grep -rI -oP "(?<=\\Wt\\([\'\\"\\`])[a-zA-Z0-9_.-]+(?=[\'\\"\\`])" {src_dir} | cut -d: -f2'
+    cmd2 = f'grep -rI -oP "(?<=i18nKey=[\'\\"\\`])[a-zA-Z0-9_.-]+(?=[\'\\"\\`])" {src_dir} | cut -d: -f2'
+    cmd3 = f'grep -rI -oP "(?<=i18nKey={{[\'\\"\\`])[a-zA-Z0-9_.-]+(?=[\'\\"\\`]})" {src_dir} | cut -d: -f2'
+    
+    cmd = f'({cmd1}; {cmd2}; {cmd3}) | sort | uniq'
     try:
         result = subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         keys = set(line.strip() for line in result.stdout.splitlines() if line.strip())
