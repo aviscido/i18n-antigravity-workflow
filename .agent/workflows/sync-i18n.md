@@ -1,3 +1,4 @@
+---
 description: Check and synchronize i18n translation keys across the frontend project
 ---
 
