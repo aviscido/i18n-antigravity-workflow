@@ -10,6 +10,8 @@ This repository provides:
 2. **Agent Workflows (`.agent/workflows`)**: A markdown workflow file designed specifically to teach Agentic LLMs (like Google's Antigravity or Cursor) how to parse, analyze, and automate the synchronization of your translations over chat interfaces.
 
 ## Features
+- **Multi-Namespace Support**: Automatically discovers multiple `.json` files (e.g., `help.json`, `settings.json`) and assigns keys to them based on source context.
+- **Namespace-Aware Scanning**: Processes `useTranslation('ns')` hooks and supports `// i18n-namespace: ns` code hints for non-hook files.
 - **Strict Tree Flattening**: Identifies missing and completely dead keys by flattening their dictionaries.
 - **Automated Fallbacks**: When it injects missing keys into your secondary locales, it safely falls back to the English variant or the raw Key string to prevent UI crashing.
 - **Dynamic Template Literal Support**: React relies heavily on `t("status.${statusKey}")`. The Python script automatically scans your source code for template literals and preserves their parent dictionary objects dynamically without manual configuration.

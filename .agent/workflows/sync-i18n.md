@@ -4,38 +4,41 @@ description: Check and synchronize i18n translation keys across the frontend pro
 When the user asks you to check or sync translations, or use the `/sync-i18n` command, follow these steps:
 
 0. **Inform the user about deeply nested dynamic keys (not more than 1 level supported)**
-   In case users have more than 1 level (namespace.{dynamicKey} vs namespace.{dynamicKey}.{subKey}) then need to use the `--preseve` flag.
+   In case users have more than 1 level (namespace.{dynamicKey} vs namespace.{dynamicKey}.{subKey}) then need to use the `--preserve` flag.
    Eventually offer the user to perform a scan and identify such cases. Also translation use of i18n should happen via t(), other forms are unsupported, eg. translations()
 
 1. **Ask for target directories (Optional if clear from context)**:
-   Determine the target `src` directory containing the application code and the target `locales` directory containing the `translation.json` files. If this is not provided by the user and is not obvious in the workspace, you should ask.
+   Determine the target `src` directory containing the application code and the target `locales` directory containing the `.json` files. 
 
-2. **Run the analysis script (Dry Run)**:
+2. **Discover Namespaces**:
+   The script automatically handles multiple namespaces by scanning the `locales` folder for all `.json` files.
+   *   **Implicit Discovery**: Source files using `useTranslation('ns')` will have their keys attributed to `ns.json`.
+   *   **Explicit Hints**: For data files or components where hooks aren't used, you can add `// i18n-namespace: name` at the top of the file to guide the sync script.
+   *   **Explicit Keys**: Keys used as `ns:key` are automatically attributed to the correct namespace.
+
+3. **Run the analysis script (Dry Run)**:
    Using the `run_command` tool, execute the analysis script to see what keys are missing or unused. Do not pass the `--sync` flag yet.
    Example:
    `python3 scripts/sync_i18n.py --src path/to/src --locales path/to/locales`
 
-3. **Report the findings**:
-   If the script reports missing or unused keys, tell the user the numbers of missing and unused keys, and provide a clear example of the output. 
+4. **Report the findings**:
+   The script reports missing or unused keys per namespace. Tell the user the summary for each namespace.
    
    *Example Report Format*:
    "I have analyzed the translations. 
-   The source code uses **609 unique keys** statically and **46 dynamic prefixes**.
    
-   Here is the summary of discrepancies:
-   - **`en` locale:** 21 missing keys, 149 unused keys.
-   - **`it` locale:** 32 missing keys, 145 unused keys.
+   **NAMESPACE: translation**
+   - **`en` locale:** 0 missing keys, 4 unused keys.
+   - **`it` locale:** 0 missing keys, 4 unused keys.
    
-   *Examples of missing keys in `en`:*
-   - `auth.security_alert`
-   - `auth.noEmailError`
+   **NAMESPACE: help**
+   - **`en` locale:** 0 missing keys, 0 unused keys.
    
    Would you like me to synchronize these files now?"
 
-4. **Run Synchronization**:
-   If the user approves, or if they explicitly asked for synchronization originally with `/sync-i18n`, run the script with the `--sync` flag.
-   Example:
+5. **Run Synchronization**:
+   If the user approves, run the script with the `--sync` flag.
    `python3 scripts/sync_i18n.py --src path/to/src --locales path/to/locales --sync`
 
-5. **Verify the Build**:
+6. **Verify the Build**:
    Navigate to the respective frontend directory and run `npm run build` to ensure the new consolidated translation files do not break the build.
